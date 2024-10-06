@@ -1,0 +1,256 @@
+<!-- <!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Push Notifications</title>
+</head>
+<body>
+    <h1>ยินดีต้อนรับสู่ Web Push Notifications!</h1>
+    <button id="subscribe">สมัครรับการแจ้งเตือน</button>
+
+    <script>
+        const publicVapidKey = 'BF5t8lkXk4dbgAS7BJDfPmsQTmICQhjDJ_IKKuKMXus0rUL8hr9e4FqMusr7LUEpxRUFweooXV6ken-r_664f50';
+
+        // ฟังก์ชันสมัครสมาชิกการแจ้งเตือน
+        async function subscribeUser() {
+            const register = await navigator.serviceWorker.register('/worker.js');
+
+            const subscription = await register.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+            });
+
+            // ส่งข้อมูลการสมัครสมาชิกไปยังเซิร์ฟเวอร์
+            await fetch('/subscribe', {
+                method: 'POST',
+                body: JSON.stringify(subscription),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            console.log('User is subscribed:', subscription);
+        }
+
+        // ฟังก์ชันแปลง VAPID Key
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            return new Uint8Array([...rawData].map(char => char.charCodeAt(0)));
+        }
+
+        document.getElementById('subscribe').addEventListener('click', () => {
+            subscribeUser();
+        });
+    </script>
+</body>
+</html> -->
+
+
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Push Notifications</title>
+</head>
+<body>
+    <h1>ยินดีต้อนรับสู่ Web Push Notifications!</h1>
+    <button id="subscribe">สมัครรับการแจ้งเตือน</button>
+    <button id="unsubscribe">ลบการสมัครรับการแจ้งเตือน</button>
+
+    <script>
+        const publicVapidKey = 'BF5t8lkXk4dbgAS7BJDfPmsQTmICQhjDJ_IKKuKMXus0rUL8hr9e4FqMusr7LUEpxRUFweooXV6ken-r_664f50';
+
+        // ฟังก์ชันสมัครสมาชิกการแจ้งเตือน
+        async function subscribeUser() {
+            // ตรวจสอบว่า browser รองรับ Service Worker และ Push Manager หรือไม่
+            if ('serviceWorker' in navigator && 'PushManager' in window) {
+                const register = await navigator.serviceWorker.register('/worker.js');
+
+                // ตรวจสอบว่าผู้ใช้สมัครสมาชิกแล้วหรือไม่
+                const subscription = await register.pushManager.getSubscription();
+                if (subscription === null) {
+                    // ถ้ายังไม่ได้สมัครสมาชิก, สมัครสมาชิกใหม่
+                    const newSubscription = await register.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+                    });
+
+                    // ส่งข้อมูลการสมัครสมาชิกไปยังเซิร์ฟเวอร์
+                    await fetch('/subscribe', {
+                        method: 'POST',
+                        body: JSON.stringify(newSubscription),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    console.log('User is subscribed:', newSubscription);
+                    alert('สมัครรับการแจ้งเตือนสำเร็จ!');
+                } else {
+                    console.log('ผู้ใช้ได้สมัครรับการแจ้งเตือนแล้ว');
+                    alert('คุณได้สมัครรับการแจ้งเตือนแล้ว');
+                }
+            } else {
+                alert('เบราว์เซอร์ของคุณไม่รองรับการแจ้งเตือนแบบ Push');
+            }
+        }
+
+        // ฟังก์ชันลบการสมัครสมาชิกการแจ้งเตือน
+        async function unsubscribeUser() {
+            // ตรวจสอบว่า browser รองรับ Service Worker และ Push Manager หรือไม่
+            if ('serviceWorker' in navigator && 'PushManager' in window) {
+                const register = await navigator.serviceWorker.register('/worker.js');
+
+                // ตรวจสอบว่าผู้ใช้สมัครสมาชิกแล้วหรือไม่
+                const subscription = await register.pushManager.getSubscription();
+                if (subscription) {
+                    // ยกเลิกการสมัคร
+                    await subscription.unsubscribe();
+
+                    // อาจทำการแจ้งเซิร์ฟเวอร์ว่าผู้ใช้ได้ยกเลิกการสมัคร
+                    console.log('User is unsubscribed:', subscription);
+                    alert('คุณได้ลบการสมัครรับการแจ้งเตือนแล้ว');
+                } else {
+                    console.log('ยังไม่ได้สมัครรับการแจ้งเตือน');
+                    alert('คุณยังไม่ได้สมัครรับการแจ้งเตือน');
+                }
+            } else {
+                alert('เบราว์เซอร์ของคุณไม่รองรับการแจ้งเตือนแบบ Push');
+            }
+        }
+
+        // ฟังก์ชันแปลง VAPID Key
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            return new Uint8Array([...rawData].map(char => char.charCodeAt(0)));
+        }
+
+        document.getElementById('subscribe').addEventListener('click', () => {
+            subscribeUser();
+        });
+
+        document.getElementById('unsubscribe').addEventListener('click', () => {
+            unsubscribeUser();
+        });
+    </script>
+</body>
+</html> -->
+
+
+
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Push Notifications</title>
+    <link rel="stylesheet" href="index.css"> <!-- เพิ่มไฟล์ style.css -->
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ยินดีต้อนรับสู่ Web Push Notifications!</h1>
+        </header>
+        <main>
+            <p>กดสมัครเพื่อรับการแจ้งเตือนข่าวกีฬาล่าสุดได้ทันที</p>
+            <div class="button-container">
+                <button id="subscribe" class="btn">สมัครรับการแจ้งเตือน</button>
+                <button id="unsubscribe" class="btn">ยกเลิกการสมัครรับการแจ้งเตือน</button>
+            </div>
+        </main>
+        <footer>
+            <p>สร้างขึ้นเพื่อทดสอบระบบแจ้งเตือน © 2024</p>
+        </footer>
+    </div>
+
+    <script>
+        const publicVapidKey = 'BF5t8lkXk4dbgAS7BJDfPmsQTmICQhjDJ_IKKuKMXus0rUL8hr9e4FqMusr7LUEpxRUFweooXV6ken-r_664f50';
+
+        // ฟังก์ชันสมัครสมาชิกการแจ้งเตือน
+        async function subscribeUser() {
+            // ตรวจสอบว่า browser รองรับ Service Worker และ Push Manager หรือไม่
+            if ('serviceWorker' in navigator && 'PushManager' in window) {
+                const register = await navigator.serviceWorker.register('/worker.js');
+
+                // ตรวจสอบว่าผู้ใช้สมัครสมาชิกแล้วหรือไม่
+                const subscription = await register.pushManager.getSubscription();
+                if (subscription === null) {
+                    // ถ้ายังไม่ได้สมัครสมาชิก, สมัครสมาชิกใหม่
+                    const newSubscription = await register.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+                    });
+
+                    // ส่งข้อมูลการสมัครสมาชิกไปยังเซิร์ฟเวอร์
+                    await fetch('/subscribe', {
+                        method: 'POST',
+                        body: JSON.stringify(newSubscription),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    console.log('User is subscribed:', newSubscription);
+                    alert('สมัครรับการแจ้งเตือนสำเร็จ!');
+                } else {
+                    console.log('ผู้ใช้ได้สมัครรับการแจ้งเตือนแล้ว');
+                    alert('คุณได้สมัครรับการแจ้งเตือนแล้ว');
+                }
+            } else {
+                alert('เบราว์เซอร์ของคุณไม่รองรับการแจ้งเตือนแบบ Push');
+            }
+        }
+
+        // ฟังก์ชันลบการสมัครสมาชิกการแจ้งเตือน
+        async function unsubscribeUser() {
+            // ตรวจสอบว่า browser รองรับ Service Worker และ Push Manager หรือไม่
+            if ('serviceWorker' in navigator && 'PushManager' in window) {
+                const register = await navigator.serviceWorker.register('/worker.js');
+
+                // ตรวจสอบว่าผู้ใช้สมัครสมาชิกแล้วหรือไม่
+                const subscription = await register.pushManager.getSubscription();
+                if (subscription) {
+
+                    await fetch('/unsubscribe', {
+                        method: 'POST',
+                        body: JSON.stringify(subscription),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    // ยกเลิกการสมัคร
+                    await subscription.unsubscribe();
+
+                    // อาจทำการแจ้งเซิร์ฟเวอร์ว่าผู้ใช้ได้ยกเลิกการสมัคร
+                    console.log('User is unsubscribed:', subscription);
+                    alert('คุณได้ลบการสมัครรับการแจ้งเตือนแล้ว');
+                } else {
+                    console.log('ยังไม่ได้สมัครรับการแจ้งเตือน');
+                    alert('คุณยังไม่ได้สมัครรับการแจ้งเตือน');
+                }
+            } else {
+                alert('เบราว์เซอร์ของคุณไม่รองรับการแจ้งเตือนแบบ Push');
+            }
+        }
+
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            return new Uint8Array([...rawData].map(char => char.charCodeAt(0)));
+        }
+
+        document.getElementById('subscribe').addEventListener('click', subscribeUser);
+        document.getElementById('unsubscribe').addEventListener('click', unsubscribeUser);
+    </script>
+</body>
+</html>

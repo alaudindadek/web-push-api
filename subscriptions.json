@@ -1,0 +1,10 @@
+[
+  {
+    "endpoint": "https://fcm.googleapis.com/fcm/send/f4bXnZ6m764:APA91bG9QDWqWYq-DF5MH0pxiUdZoTP2itoD8yJRfX2cNdL-ZXK-BWQErNDR7oK9safoYz2vWN_5m1SLUfA6vaqXcC_tj9LGoee4EU4gXExN9BqN1t5zdUEbo2Cafr0_U_pfSC8x9Lul",
+    "expirationTime": null,
+    "keys": {
+      "p256dh": "BNt6b34nvMoxqVY9dDPAHj2OeRW5ec35tAcjqPXMPd4lR3Z5iLd1pTV4KRheXyvFbDLXWtJCn0LE82dVUgThn-E",
+      "auth": "R8Mo6hFQTr6ccFtnZPg7bA"
+    }
+  }
+]
