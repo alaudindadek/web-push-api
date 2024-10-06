@@ -115,6 +115,8 @@ import fetch from 'node-fetch'; // สำหรับดึงข้อมูล
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs'; // สำหรับจัดการไฟล์
+import cors from 'cors';
+app.use(cors());
 
 // ไม่มีการใช้ __filename และ __dirname ใน ES Module
 const app = express();
@@ -135,7 +137,7 @@ webPush.setVapidDetails(
 
 // เสิร์ฟไฟล์ frontend
 // app.use(express.static(path.join(__dirname, 'client')));
-app.use('/static', express.static(path.join(__dirname, 'client')));
+app.use(express.static(path.join(__dirname, 'client')));
 
 
 // โหลดข้อมูลการสมัครสมาชิกจากไฟล์ subscriptions.json

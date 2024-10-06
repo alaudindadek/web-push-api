@@ -177,77 +177,68 @@
 
         // ฟังก์ชันสมัครสมาชิกการแจ้งเตือน
         async function subscribeUser() {
-            try {
-                // ตรวจสอบว่า browser รองรับ Service Worker และ Push Manager หรือไม่
-                if ('serviceWorker' in navigator && 'PushManager' in window) {
-                    const register = await navigator.serviceWorker.register('/worker.js');
+            // ตรวจสอบว่า browser รองรับ Service Worker และ Push Manager หรือไม่
+            if ('serviceWorker' in navigator && 'PushManager' in window) {
+                const register = await navigator.serviceWorker.register('/worker.js');
 
-                    // ตรวจสอบว่าผู้ใช้สมัครสมาชิกแล้วหรือไม่
-                    const subscription = await register.pushManager.getSubscription();
-                    if (subscription === null) {
-                        // ถ้ายังไม่ได้สมัครสมาชิก, สมัครสมาชิกใหม่
-                        const newSubscription = await register.pushManager.subscribe({
-                            userVisibleOnly: true,
-                            applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
-                        });
+                // ตรวจสอบว่าผู้ใช้สมัครสมาชิกแล้วหรือไม่
+                const subscription = await register.pushManager.getSubscription();
+                if (subscription === null) {
+                    // ถ้ายังไม่ได้สมัครสมาชิก, สมัครสมาชิกใหม่
+                    const newSubscription = await register.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+                    });
 
-                        // ส่งข้อมูลการสมัครสมาชิกไปยังเซิร์ฟเวอร์
-                        await fetch('/subscribe', {
-                            method: 'POST',
-                            body: JSON.stringify(newSubscription),
-                            headers: {
-                                'Content-Type': 'application/json'
-                            }
-                        });
+                    // ส่งข้อมูลการสมัครสมาชิกไปยังเซิร์ฟเวอร์
+                    await fetch('/subscribe', {
+                        method: 'POST',
+                        body: JSON.stringify(newSubscription),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
 
-                        console.log('User is subscribed:', newSubscription);
-                        alert('สมัครรับการแจ้งเตือนสำเร็จ!');
-                    } else {
-                        console.log('ผู้ใช้ได้สมัครรับการแจ้งเตือนแล้ว');
-                        alert('คุณได้สมัครรับการแจ้งเตือนแล้ว');
-                    }
+                    console.log('User is subscribed:', newSubscription);
+                    alert('สมัครรับการแจ้งเตือนสำเร็จ!');
                 } else {
-                    alert('เบราว์เซอร์ของคุณไม่รองรับการแจ้งเตือนแบบ Push');
+                    console.log('ผู้ใช้ได้สมัครรับการแจ้งเตือนแล้ว');
+                    alert('คุณได้สมัครรับการแจ้งเตือนแล้ว');
                 }
-            } catch (error) {
-                console.error('Error during subscription:', error);
-                alert('เกิดข้อผิดพลาดในการสมัครรับการแจ้งเตือน');
+            } else {
+                alert('เบราว์เซอร์ของคุณไม่รองรับการแจ้งเตือนแบบ Push');
             }
         }
 
         // ฟังก์ชันลบการสมัครสมาชิกการแจ้งเตือน
         async function unsubscribeUser() {
-            try {
-                // ตรวจสอบว่า browser รองรับ Service Worker และ Push Manager หรือไม่
-                if ('serviceWorker' in navigator && 'PushManager' in window) {
-                    const register = await navigator.serviceWorker.register('/worker.js');
+            // ตรวจสอบว่า browser รองรับ Service Worker และ Push Manager หรือไม่
+            if ('serviceWorker' in navigator && 'PushManager' in window) {
+                const register = await navigator.serviceWorker.register('/worker.js');
 
-                    // ตรวจสอบว่าผู้ใช้สมัครสมาชิกแล้วหรือไม่
-                    const subscription = await register.pushManager.getSubscription();
-                    if (subscription) {
-                        await fetch('/unsubscribe', {
-                            method: 'POST',
-                            body: JSON.stringify(subscription),
-                            headers: {
-                                'Content-Type': 'application/json'
-                            }
-                        });
-                        // ยกเลิกการสมัคร
-                        await subscription.unsubscribe();
+                // ตรวจสอบว่าผู้ใช้สมัครสมาชิกแล้วหรือไม่
+                const subscription = await register.pushManager.getSubscription();
+                if (subscription) {
 
-                        // อาจทำการแจ้งเซิร์ฟเวอร์ว่าผู้ใช้ได้ยกเลิกการสมัคร
-                        console.log('User is unsubscribed:', subscription);
-                        alert('คุณได้ลบการสมัครรับการแจ้งเตือนแล้ว');
-                    } else {
-                        console.log('ยังไม่ได้สมัครรับการแจ้งเตือน');
-                        alert('คุณยังไม่ได้สมัครรับการแจ้งเตือน');
-                    }
+                    await fetch('/unsubscribe', {
+                        method: 'POST',
+                        body: JSON.stringify(subscription),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    // ยกเลิกการสมัคร
+                    await subscription.unsubscribe();
+
+                    // อาจทำการแจ้งเซิร์ฟเวอร์ว่าผู้ใช้ได้ยกเลิกการสมัคร
+                    console.log('User is unsubscribed:', subscription);
+                    alert('คุณได้ลบการสมัครรับการแจ้งเตือนแล้ว');
                 } else {
-                    alert('เบราว์เซอร์ของคุณไม่รองรับการแจ้งเตือนแบบ Push');
+                    console.log('ยังไม่ได้สมัครรับการแจ้งเตือน');
+                    alert('คุณยังไม่ได้สมัครรับการแจ้งเตือน');
                 }
-            } catch (error) {
-                console.error('Error during unsubscription:', error);
-                alert('เกิดข้อผิดพลาดในการยกเลิกการสมัครรับการแจ้งเตือน');
+            } else {
+                alert('เบราว์เซอร์ของคุณไม่รองรับการแจ้งเตือนแบบ Push');
             }
         }
 
