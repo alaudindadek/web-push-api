@@ -134,7 +134,9 @@ webPush.setVapidDetails(
 );
 
 // เสิร์ฟไฟล์ frontend
-app.use(express.static(path.join(__dirname, 'client')));
+// app.use(express.static(path.join(__dirname, 'client')));
+app.use('/static', express.static(path.join(__dirname, 'client')));
+
 
 // โหลดข้อมูลการสมัครสมาชิกจากไฟล์ subscriptions.json
 let subscriptions = [];
